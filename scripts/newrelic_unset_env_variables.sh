@@ -6,6 +6,15 @@
 
 echo "Unsetting New Relic Ruby Agent environment variables..."
 
+# Function to unset variables with a common prefix
+unset_vars_with_prefix() {
+  local prefix=$1
+  for var in $(env | grep "^$prefix" | cut -d= -f1); do
+    unset "$var"
+    echo "Unset $var"
+  done
+}
+
 # Core Configuration
 unset NEW_RELIC_LICENSE_KEY
 unset NEW_RELIC_APP_NAME
@@ -489,6 +498,13 @@ unset NEW_RELIC_INSIGHTS_INSERT_KEY
 unset NEW_RELIC_INSIGHTS_QUERY_KEY
 unset NEW_RELIC_INSIGHTS_URL
 
-echo "All New Relic Ruby Agent environment variables have been unset."
-echo "Remember: You must run this script with 'source' (e.g., 'source unset_newrelic_env_vars.sh')"
-echo "for the environment variables to be unset in your current shell session."
+# Now use the function to catch any other variables with NEW_RELIC_ prefix
+echo "Checking for any additional NEW_RELIC_ variables..."
+unset_vars_with_prefix "NEW_RELIC_"
+
+# Also check for NEWRELIC_ prefix (without underscore)
+echo "Checking for any additional NEWRELIC_ variables..."
+unset_vars_with_prefix "NEWRELIC_"
+
+echo "All New Relic environment variables have been unset."
+echo "Remember to restart your application for these changes to take effect."
